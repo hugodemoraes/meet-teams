@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FlatList } from "react-native";
+import { useRoute } from "@react-navigation/native";
 
 import { Header } from "@components/Header";
 import { Highlight } from "@components/Highlight";
@@ -8,15 +9,22 @@ import { Input } from "@components/Input";
 import { EmptyList } from "@components/EmptyList";
 import { ButtonIcon } from "@components/ButtonIcon";
 import { Filter } from "@components/Filter";
+import { PlayerCard } from "@components/PlayerCard";
 
 import { Container, Content, Form, HeaderList, PlayersCounter } from "./styles";
-import { PlayerCard } from "@components/PlayerCard";
+
+type RouteParams = {
+  group: string;
+};
 
 export default function Players() {
   const TEAMS = ["Time A", "Time B"];
 
   const [team, setTeam] = useState(TEAMS[0]);
   const [players, setPlayers] = useState<string[]>(["Hugo de Moraes"]);
+
+  const route = useRoute();
+  const { group } = route.params as RouteParams;
 
   function handleRemovePlayer(player: string) {}
 
@@ -26,7 +34,7 @@ export default function Players() {
 
       <Content>
         <Highlight
-          title="Nome da turma"
+          title={group}
           subtitle="adicione a galera e separe os times"
         />
 
