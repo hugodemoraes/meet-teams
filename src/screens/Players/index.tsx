@@ -1,10 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, FlatList, TextInput } from "react-native";
-import { useFocusEffect, useRoute } from "@react-navigation/native";
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
 
 import { playerAddByGroup } from "@storage/player/playerAddByGroup";
 import { playersGetByGroupAndTeam } from "@storage/player/playersGetByGroupAndTeam";
 import { PlayerStorageDTO } from "@storage/player/PlayerStorageDTO";
+import { playerRemoveByGroup } from "@storage/player/playerRemoveByGroup";
+import { groupRemoveByName } from "@storage/group/groupRemoveByName";
 import { AppError } from "@utils/AppError";
 
 import { Header } from "@components/Header";
@@ -17,7 +23,6 @@ import { Filter } from "@components/Filter";
 import { PlayerCard } from "@components/PlayerCard";
 
 import { Container, Content, Form, HeaderList, PlayersCounter } from "./styles";
-import { playerRemoveByGroup } from "@storage/player/playerRemoveByGroup";
 
 type RouteParams = {
   group: string;
@@ -30,6 +35,7 @@ export default function Players() {
   const [players, setPlayers] = useState<PlayerStorageDTO[]>([]);
   const [newPlayerName, setNewPlayerName] = useState("");
 
+  const { navigate } = useNavigation();
   const route = useRoute();
   const { group } = route.params as RouteParams;
 
@@ -85,6 +91,29 @@ export default function Players() {
       Alert.alert("Remover pessoa", "Não foi possível remover essa pessoa.");
       console.log(error);
     }
+  }
+
+  async function removeGroup() {
+    try {
+      await groupRemoveByName(group);
+      navigate("groups");
+    } catch (error) {
+      Alert.alert("Remover grupo", "Não foi possível remover o grupo.");
+      console.log(error);
+    }
+  }
+
+  function handleRemoveGroup() {
+    Alert.alert("Remover", "Deseja remover esse grupo?", [
+      {
+        text: "Não",
+        style: "cancel",
+      },
+      {
+        text: "Sim",
+        onPress: () => removeGroup(),
+      },
+    ]);
   }
 
   useEffect(() => {
@@ -151,7 +180,11 @@ export default function Players() {
           showsVerticalScrollIndicator={false}
         />
 
-        <Button description="Remover turmar" type="SECONDARY" />
+        <Button
+          description="Remover turmar"
+          type="SECONDARY"
+          onPress={handleRemoveGroup}
+        />
       </Content>
     </Container>
   );
